@@ -113,6 +113,9 @@ def crop_for_filling_post(
     crop_y = min(max(y + h // 2 - crop_size // 2, 0), height - crop_size)
 
     # Fill the image
+    dst_shape = image[crop_y:crop_y + crop_size, crop_x:crop_x + crop_size].shape
+    if filled_image.shape != dst_shape:
+        filled_image = np.asarray(Image.fromarray(filled_image).resize(tuple(reversed(dst_shape[:2])), Image.Resampling.LANCZOS))
     image[crop_y:crop_y + crop_size, crop_x:crop_x + crop_size] = filled_image
     if flag_padding:
         image = cv2.resize(image, (0, 0), fx=1/resize_factor, fy=1/resize_factor)
