@@ -33,6 +33,23 @@ def predict_masks_with_sam(
     )
     return masks, scores, logits
 
+def predict_masks_with_sam2(
+        img: np.ndarray,
+        predictor,
+        point_coords: List[List[float]],
+        point_labels: List[int],
+        device="cuda"
+):
+    point_coords = np.array(point_coords)
+    point_labels = np.array(point_labels)
+
+    predictor.set_image(img)
+    masks, scores, logits = predictor.predict(
+        point_coords=point_coords,
+        point_labels=point_labels,
+        multimask_output=True,
+    )
+    return masks, scores, logits
 
 def build_sam_model(model_type: str, ckpt_p: str, device="cuda"):
     sam = sam_model_registry[model_type](checkpoint=ckpt_p)
