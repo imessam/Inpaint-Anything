@@ -11,6 +11,30 @@ from utils.mask_processing import crop_for_filling_pre, crop_for_filling_post
 from utils.crop_for_replacing import recover_size, resize_and_pad
 from utils import load_img_to_array, save_array_to_img
 
+def get_pipe(device = "cuda"):
+  pipe = StableDiffusionInpaintPipeline.from_pretrained(
+        "stabilityai/stable-diffusion-2-inpainting",
+        torch_dtype=torch.float32,
+    ).to(device)
+
+  return pipe
+
+def fill_img_with_sd2(
+        img: np.ndarray,
+        mask: np.ndarray,
+        pipe,
+        text_prompt: str,
+        device="cuda"
+):
+    img_crop, mask_crop = crop_for_filling_pre(img, mask)
+    img_crop_filled = pipe(
+        prompt=text_prompt,
+        image=Image.fromarray(img_crop),
+        mask_image=Image.fromarray(mask_crop)
+    ).images[0]
+    img_filled = crop_for_filling_post(img, mask, np.array(img_crop_filled))
+    return img_filled
+
 
 def fill_img_with_sd(
         img: np.ndarray,
